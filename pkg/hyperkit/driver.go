@@ -36,10 +36,10 @@ import (
 	"github.com/johanneswuerbach/nfsexports"
 	"github.com/moby/hyperkit/go"
 	"github.com/pkg/errors"
+	"io/ioutil"
 	pkgdrivers "github.com/machine-drivers/docker-machine-driver-hyperkit/pkg/drivers"
 	"regexp"
 	"github.com/docker/machine/libmachine/mcnutils"
-	"io/ioutil"
 )
 
 const (
