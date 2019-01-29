@@ -191,6 +191,7 @@ func (d *Driver) Start() error {
 		return errors.Wrap(err, "new-ing Hyperkit")
 	}
 
+	// TODO: handle the rest of our settings.
 	h.Kernel = d.ResolveStorePath(d.Vmlinuz)
 	h.Initrd =d.ResolveStorePath(d.Initrd)
 	h.VMNet = true
@@ -199,20 +200,13 @@ func (d *Driver) Start() error {
 	h.CPUs = d.CPU
 	h.Memory = d.Memory
 	h.UUID = d.UUID
+
 	if vsockPorts, err := d.extractVSockPorts(); err != nil {
 		return err
 	} else if len(vsockPorts) >= 1 {
 		h.VSock = true
 		h.VSockPorts = vsockPorts
 	}
-	h.Disks = []hyperkit.DiskConfig{
-		{
-			Path:   pkgdrivers.GetDiskPath(d.BaseDriver),
-			Size:   d.DiskSize,
-			Driver: "virtio-blk",
-		},
-	}
-	//}
 
 	log.Infof("Using UUID %s", h.UUID)
 	mac, err := GetMACAddressFromUUID(h.UUID)
@@ -223,7 +217,13 @@ func (d *Driver) Start() error {
 	// Need to strip 0's
 	mac = trimMacAddress(mac)
 	log.Infof("Generated MAC %s", mac)
-
+	h.Disks = []hyperkit.DiskConfig{
+		{
+			Path:   pkgdrivers.GetDiskPath(d.BaseDriver),
+			Size:   d.DiskSize,
+			Driver: "virtio-blk",
+		},
+	}
 	log.Infof("Starting with cmdline: %s", d.Cmdline)
 	if err := h.Start(d.Cmdline); err != nil {
 		return errors.Wrapf(err, "starting with cmd line: %s", d.Cmdline)
@@ -458,6 +458,7 @@ func (d *Driver) sendSignal(s os.Signal) error {
 
 func (d *Driver) getPid() int {
 	pidPath := d.ResolveStorePath(machineFileName)
+
 	f, err := os.Open(pidPath)
 	if err != nil {
 		log.Warnf("Error reading pid file: %v", err)
