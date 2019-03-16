@@ -27,6 +27,7 @@ import (
 	"fmt"
 )
 
+// RetriableError is an error that can be tried again
 type RetriableError struct {
 	Err error
 }
@@ -35,16 +36,19 @@ func (r RetriableError) Error() string {
 	return "Temporary Error: " + r.Err.Error()
 }
 
+// MultiError holds multiple errors
 type MultiError struct {
 	Errors []error
 }
 
+// Collect adds the error
 func (m *MultiError) Collect(err error) {
 	if err != nil {
 		m.Errors = append(m.Errors, err)
 	}
 }
 
+// ToError converts all errors into one
 func (m MultiError) ToError() error {
 	if len(m.Errors) == 0 {
 		return nil
@@ -57,6 +61,7 @@ func (m MultiError) ToError() error {
 	return errors.New(strings.Join(errStrings, "\n"))
 }
 
+// RetryAfter retries a number of attempts, after a delay
 func RetryAfter(attempts int, callback func() error, d time.Duration) (err error) {
 	m := MultiError{}
 	for i := 0; i < attempts; i++ {
