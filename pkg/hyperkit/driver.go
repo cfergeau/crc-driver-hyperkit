@@ -75,7 +75,7 @@ type Driver struct {
 func NewDriver(hostName, storePath string) *Driver {
 	return &Driver{
 		BaseDriver: &drivers.BaseDriver{
-			SSHUser: "docker",
+			SSHUser: DefaultSSHUser,
 		},
 		CommonDriver: &pkgdrivers.CommonDriver{},
 	}
@@ -111,7 +111,7 @@ func (d *Driver) Create() error {
 
 // DriverName returns the name of the driver
 func (d *Driver) DriverName() string {
-	return "hyperkit"
+	return DriverName
 }
 
 // GetSSHHostname returns hostname for use with ssh
@@ -122,11 +122,7 @@ func (d *Driver) GetSSHHostname() (string, error) {
 // GetURL returns a Docker compatible host URL for connecting to this host
 // e.g. tcp://1.2.3.4:2376
 func (d *Driver) GetURL() (string, error) {
-	ip, err := d.GetIP()
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("tcp://%s:2376", ip), nil
+	return "", nil
 }
 
 // GetState returns the state that the host is in (running, stopped, etc)
