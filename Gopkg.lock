@@ -2,31 +2,17 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "github.com/Azure/go-ansiterm"
-  packages = [
-    ".",
-    "winterm"
-  ]
-  revision = "d6e3b3328b783f23731bc4d058875b0371ff8109"
-
-[[projects]]
+  digest = "1:87021a8fd708a9c4dd48a441cc2dace8063f2c1f5d67699ba6f1f93b548e4a33"
   name = "github.com/cloudflare/cfssl"
   packages = ["log"]
+  pruneopts = ""
   revision = "4e2dcbde500472449917533851bf4bae9bdff562"
   version = "1.3.1"
 
 [[projects]]
   branch = "master"
-  name = "github.com/docker/docker"
-  packages = [
-    "pkg/term",
-    "pkg/term/windows"
-  ]
-  revision = "0c1006f1abc1af7aa6b9847754370d054dfa6c68"
-
-[[projects]]
-  name = "github.com/docker/machine"
+  digest = "1:159a362b55561c0a83b934455c7388ebb1b4a8b4eb3d63793122e53c55fc93fc"
+  name = "github.com/code-ready/machine"
   packages = [
     "libmachine/drivers",
     "libmachine/drivers/plugin",
@@ -38,49 +24,65 @@
     "libmachine/ssh",
     "libmachine/state",
     "libmachine/version",
-    "version"
   ]
+  pruneopts = ""
+  revision = "66a8c3b3c4940bbb63aeefbf972345ec52a6ad97"
+
+[[projects]]
+  digest = "1:6a08786eeb0d6147e0d11c922c5d46963d9947f0cf908a2d82978e69bae3bbc6"
+  name = "github.com/docker/machine"
+  packages = [
+    "libmachine/log",
+    "libmachine/mcnutils",
+    "version",
+  ]
+  pruneopts = ""
   revision = "89b833253d9412716a0291cbdccc94454c33d1b5"
   version = "v0.14.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:673951e9e69398c08ee0689c99fb725b57ada9b946e491eda95dd8421444100c"
   name = "github.com/johanneswuerbach/nfsexports"
   packages = ["."]
+  pruneopts = ""
   revision = "a9068f3f0daa39616953aec11c3eb1209ebc4086"
 
 [[projects]]
   branch = "master"
+  digest = "1:1dee6133ab829c8559a39031ad1e0e3538e4a7b34d3e0509d1fc247737e928c1"
   name = "github.com/mitchellh/go-ps"
   packages = ["."]
+  pruneopts = ""
   revision = "4fdf99ab29366514c69ccccddab5dc58b8d84062"
 
 [[projects]]
+  digest = "1:90c6024db82483e02008822e8b318a5e3c746da194fbb851791771eb1b2bece8"
   name = "github.com/moby/hyperkit"
   packages = ["go"]
+  pruneopts = ""
   revision = "858492e3d919f8b49a39e1944a49e1d7b4a51e6d"
   version = "v0.20171204"
 
 [[projects]]
+  digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
   name = "github.com/pkg/errors"
   packages = ["."]
+  pruneopts = ""
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
 
 [[projects]]
-  name = "github.com/sirupsen/logrus"
-  packages = ["."]
-  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
-  version = "v1.0.5"
-
-[[projects]]
   branch = "master"
+  digest = "1:105acd2569dcf19663767804513b865ff73f2b3af496df994a1d4678e87ce651"
   name = "github.com/zchee/go-vmnet"
   packages = ["."]
+  pruneopts = ""
   revision = "97ebf91740978f1e665defc0a960fb997ebe282b"
 
 [[projects]]
   branch = "master"
+  digest = "1:fe9daaff765cf22a8d96fa9d40319f15508e245a275ac66f3b288d833d53e2be"
   name = "golang.org/x/crypto"
   packages = [
     "curve25519",
@@ -89,22 +91,39 @@
     "internal/chacha20",
     "poly1305",
     "ssh",
-    "ssh/terminal"
+    "ssh/terminal",
   ]
+  pruneopts = ""
   revision = "beaf6a35706e5032ae4c3fcf342c663c069f44d2"
 
 [[projects]]
   branch = "master"
+  digest = "1:2bd48c7cfcd6552db9102db13b6ccedfee87b7acadbe6f6c927f230eddba8505"
   name = "golang.org/x/sys"
   packages = [
     "unix",
-    "windows"
+    "windows",
   ]
+  pruneopts = ""
   revision = "f6cff0780e542efa0c8e864dc8fa522808f6a598"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dc265a7d3de9de2acfed85aa65c5a6c4c2dc1232f25c5f3797ac9f43e388f3e2"
+  input-imports = [
+    "github.com/cloudflare/cfssl/log",
+    "github.com/code-ready/machine/libmachine/drivers",
+    "github.com/code-ready/machine/libmachine/drivers/plugin",
+    "github.com/code-ready/machine/libmachine/log",
+    "github.com/code-ready/machine/libmachine/mcnflag",
+    "github.com/code-ready/machine/libmachine/mcnutils",
+    "github.com/code-ready/machine/libmachine/ssh",
+    "github.com/code-ready/machine/libmachine/state",
+    "github.com/docker/machine/libmachine/mcnutils",
+    "github.com/johanneswuerbach/nfsexports",
+    "github.com/moby/hyperkit/go",
+    "github.com/pkg/errors",
+    "github.com/zchee/go-vmnet",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

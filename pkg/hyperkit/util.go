@@ -17,14 +17,10 @@ limitations under the License.
 package hyperkit
 
 import (
-	"time"
 	"errors"
+	"github.com/code-ready/machine/libmachine/log"
 	"strings"
-	"os/exec"
-	"os"
-	"github.com/docker/machine/libmachine/log"
-	"bufio"
-	"fmt"
+	"time"
 )
 
 // RetriableError is an error that can be tried again
@@ -66,7 +62,7 @@ func RetryAfter(attempts int, callback func() error, d time.Duration) (err error
 	m := MultiError{}
 	for i := 0; i < attempts; i++ {
 		if i > 0 {
-			glog.V(1).Infof("retry loop %d", i)
+			log.Debugf("retry loop %d", i)
 		}
 		err = callback()
 		if err == nil {
@@ -74,43 +70,11 @@ func RetryAfter(attempts int, callback func() error, d time.Duration) (err error
 		}
 		m.Collect(err)
 		if _, ok := err.(*RetriableError); !ok {
-			glog.Infof("non-retriable error: %v", err)
+			log.Debugf("non-retriable error: %v", err)
 			return m.ToError()
 		}
-		glog.V(2).Infof("sleeping %s", d)
+		log.Debugf("error: %v - sleeping %s", err, d)
 		time.Sleep(d)
 	}
 	return m.ToError()
-}
-
-func hdiutil(args ...string) error {
-	cmd := exec.Command("hdiutil", args...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	log.Debugf("executing: %v %v", cmd, strings.Join(args, " "))
-
-	err := cmd.Run()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func readLine(path string) (string, error) {
-	inFile, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer inFile.Close()
-
-	scanner := bufio.NewScanner(inFile)
-	for scanner.Scan() {
-		if kernelOptionRegexp.Match(scanner.Bytes()) {
-			m := kernelOptionRegexp.FindSubmatch(scanner.Bytes())
-			return string(m[1]), nil
-		}
-	}
-	return "", fmt.Errorf("couldn't find kernel option from %s image", path)
 }

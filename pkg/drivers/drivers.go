@@ -17,18 +17,10 @@ limitations under the License.
 package drivers
 
 import (
-	"io"
-	"io/ioutil"
-	"os"
 	"path/filepath"
-	"syscall"
 
-	"github.com/cloudflare/cfssl/log"
-	"github.com/docker/machine/libmachine/drivers"
-	"github.com/docker/machine/libmachine/mcnflag"
-	"github.com/docker/machine/libmachine/mcnutils"
-	"github.com/docker/machine/libmachine/ssh"
-	"github.com/pkg/errors"
+	"github.com/code-ready/machine/libmachine/mcnflag"
+	"github.com/code-ready/machine/libmachine/drivers"
 )
 
 // GetDiskPath returns the path of the machine disk image
@@ -49,6 +41,7 @@ func (d *CommonDriver) SetConfigFromFlags(flags drivers.DriverOptions) error {
 	return nil
 }
 
+/*
 func createRawDiskImage(sshKeyPath, diskPath string, diskSizeMb int) error {
 	tarBuf, err := mcnutils.MakeDiskImage(sshKeyPath)
 	if err != nil {
@@ -80,6 +73,7 @@ func createRawDiskImage(sshKeyPath, diskPath string, diskSizeMb int) error {
 func publicSSHKeyPath(d *drivers.BaseDriver) string {
 	return d.GetSSHKeyPath() + ".pub"
 }
+*/
 
 // Restart a host. This may just call Stop(); Start() if the provider does not
 // have any special restart behaviour.
@@ -93,13 +87,16 @@ func Restart(d drivers.Driver) error {
 }
 
 // MakeDiskImage makes a boot2docker VM disk image.
-func MakeDiskImage(d *drivers.BaseDriver, boot2dockerURL string, diskSize int) error {
+func MakeDiskImage(d *drivers.BaseDriver) error {
+/*
 	//TODO(r2d4): rewrite this, not using b2dutils
 	b2dutils := mcnutils.NewB2dUtils(d.StorePath)
-	if err := b2dutils.CopyIsoToMachineDir(boot2dockerURL, d.MachineName); err != nil {
-		return errors.Wrap(err, "Error copying ISO to machine dir")
+	if err := b2dutils.CopyDiskToMachineDir(d.DiskPathURL, d.MachineName); err != nil {
+		return errors.Wrap(err, "Error copying disk image to machine dir")
 	}
+*/
 
+/*
 	log.Info("Creating ssh key...")
 	if err := ssh.GenerateSSHKey(d.GetSSHKeyPath()); err != nil {
 		return err
@@ -115,9 +112,11 @@ func MakeDiskImage(d *drivers.BaseDriver, boot2dockerURL string, diskSize int) e
 			return err
 		}
 	}
+*/
 	return nil
 }
 
+/*
 func fixPermissions(path string) error {
 	if err := os.Chown(path, syscall.Getuid(), syscall.Getegid()); err != nil {
 		return err
@@ -131,3 +130,4 @@ func fixPermissions(path string) error {
 	}
 	return nil
 }
+*/
