@@ -17,17 +17,10 @@ limitations under the License.
 package drivers
 
 import (
-	"io/ioutil"
-	"os"
 	"path/filepath"
-	"syscall"
 
-	"github.com/cloudflare/cfssl/log"
-	"github.com/code-ready/machine/libmachine/drivers"
 	"github.com/code-ready/machine/libmachine/mcnflag"
-	"github.com/code-ready/machine/libmachine/mcnutils"
-	"github.com/code-ready/machine/libmachine/ssh"
-	"github.com/pkg/errors"
+	"github.com/code-ready/machine/libmachine/drivers"
 )
 
 func GetDiskPath(d *drivers.BaseDriver) string {
@@ -46,6 +39,7 @@ func (d *CommonDriver) SetConfigFromFlags(flags drivers.DriverOptions) error {
 	return nil
 }
 
+/*
 func createRawDiskImage(sshKeyPath, diskPath string, diskSizeMb int) error {
 	tarBuf, err := mcnutils.MakeDiskImage(sshKeyPath)
 	if err != nil {
@@ -75,6 +69,7 @@ func createRawDiskImage(sshKeyPath, diskPath string, diskSizeMb int) error {
 func publicSSHKeyPath(d *drivers.BaseDriver) string {
 	return d.GetSSHKeyPath() + ".pub"
 }
+*/
 
 // Restart a host. This may just call Stop(); Start() if the provider does not
 // have any special restart behaviour.
@@ -112,6 +107,7 @@ func MakeDiskImage(d *drivers.BaseDriver, boot2dockerURL string, diskSize int) e
 	return nil
 }
 
+/*
 func fixPermissions(path string) error {
 	os.Chown(path, syscall.Getuid(), syscall.Getegid())
 	files, _ := ioutil.ReadDir(path)
@@ -123,3 +119,4 @@ func fixPermissions(path string) error {
 	}
 	return nil
 }
+*/
