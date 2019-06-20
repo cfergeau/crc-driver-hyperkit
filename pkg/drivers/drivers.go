@@ -82,13 +82,16 @@ func Restart(d drivers.Driver) error {
 	return nil
 }
 
-func MakeDiskImage(d *drivers.BaseDriver, boot2dockerURL string, diskSize int) error {
+func MakeDiskImage(d *drivers.BaseDriver) error {
+/*
 	//TODO(r2d4): rewrite this, not using b2dutils
 	b2dutils := mcnutils.NewB2dUtils(d.StorePath)
-	if err := b2dutils.CopyIsoToMachineDir(boot2dockerURL, d.MachineName); err != nil {
-		return errors.Wrap(err, "Error copying ISO to machine dir")
+	if err := b2dutils.CopyDiskToMachineDir(d.DiskPathURL, d.MachineName); err != nil {
+		return errors.Wrap(err, "Error copying disk image to machine dir")
 	}
+*/
 
+/*
 	log.Info("Creating ssh key...")
 	if err := ssh.GenerateSSHKey(d.GetSSHKeyPath()); err != nil {
 		return err
@@ -104,6 +107,7 @@ func MakeDiskImage(d *drivers.BaseDriver, boot2dockerURL string, diskSize int) e
 			return err
 		}
 	}
+*/
 	return nil
 }
 

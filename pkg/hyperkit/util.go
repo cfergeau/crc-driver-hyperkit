@@ -20,11 +20,6 @@ import (
 	"time"
 	"errors"
 	"strings"
-	"os/exec"
-	"os"
-	"github.com/code-ready/machine/libmachine/log"
-	"bufio"
-	"fmt"
 )
 
 type RetriableError struct {
@@ -73,6 +68,7 @@ func RetryAfter(attempts int, callback func() error, d time.Duration) (err error
 	return m.ToError()
 }
 
+/*
 func hdiutil(args ...string) error {
 	cmd := exec.Command("hdiutil", args...)
 	cmd.Stdout = os.Stdout
@@ -104,3 +100,4 @@ func readLine(path string) (string, error) {
 	}
 	return "", fmt.Errorf("couldn't find kernel option from %s image", path)
 }
+*/

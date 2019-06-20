@@ -22,27 +22,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/user"
-	"path"
 	"path/filepath"
-	"strings"
 	"syscall"
 	"time"
 
 	"github.com/code-ready/machine/libmachine/drivers"
 	"github.com/code-ready/machine/libmachine/log"
+	"github.com/code-ready/machine/libmachine/mcnutils"
 	"github.com/code-ready/machine/libmachine/state"
-	nfsexports "github.com/johanneswuerbach/nfsexports"
 	hyperkit "github.com/moby/hyperkit/go"
-	"github.com/pkg/errors"
 	pkgdrivers "github.com/code-ready/crc-driver-hyperkit/pkg/drivers"
-	"regexp"
-	"github.com/docker/machine/libmachine/mcnutils"
 )
 
 const (
-	isoFilename     = "boot2docker.iso"
-	isoMountPath    = "b2d-image"
 	pidFileName     = "hyperkit.pid"
 	machineFileName = "hyperkit.json"
 	permErr         = "%s needs to run with elevated permissions. " +
@@ -50,21 +42,25 @@ const (
 		"sudo chown root:wheel %s && sudo chmod u+s %s"
 )
 
+/*
 var (
 	kernelRegexp       = regexp.MustCompile(`(vmlinu[xz]|bzImage)[\d]*`)
 	kernelOptionRegexp = regexp.MustCompile(`(?:\t|\s{2})append\s+([[:print:]]+)`)
 )
+*/
 
 type Driver struct {
 	*drivers.BaseDriver
 	*pkgdrivers.CommonDriver
-	Boot2DockerURL string
-	DiskSize       int
 	CPU            int
 	Memory         int
-	Cmdline        string
+	DiskPath       string
+	DiskPathURL    string
+	Cmdline        string // kernel commandline
+/*
 	NFSShares      []string
 	NFSSharesRoot  string
+*/
 	UUID           string
 	BootKernel string
 	BootInitrd string
@@ -95,16 +91,37 @@ func (d *Driver) PreCreateCheck() error {
 	return nil
 }
 
+/* TODO: Get rid of this, have a per-machine driver GetStoragePoolPath() or something,
+ * and directly call mcnutils.CopyFile
+ * do not hardcode crc.disk here, it's making assumptions about B2dUtils
+ * cf BaseDriver.ResolveStorePath()
+ */
 func (d *Driver) Create() error {
+
+/* Obsolete, done in generic code now?
+	log.Debugf("Extracting system bundle...")
+	err := bundle.Extract(d.BundlePath, d.ResolveStorePath("."))
+	if err != nil {
+		return err
+	}
+*/
+
+	b2dutils := mcnutils.NewB2dUtils(d.StorePath)
+	if err := b2dutils.CopyDiskToMachineDir(d.DiskPathURL, d.MachineName); err != nil {
+		return err
+	}
+	d.DiskPath = d.ResolveStorePath("crc.disk")
+
 	// TODO: handle different disk types.
+/*
 	if err := pkgdrivers.MakeDiskImage(d.BaseDriver, d.Boot2DockerURL, d.DiskSize); err != nil {
 		return errors.Wrap(err, "making disk image")
 	}
-
-	isoPath := d.ResolveStorePath(isoFilename)
-	if err := d.extractKernel(isoPath); err != nil {
+	diskPath := d.ResolveStorePath(d.DiskPathURL)
+	if err := d.extractKernel(diskPath); err != nil {
 		return err
 	}
+*/
 
 	return d.Start()
 }
@@ -171,7 +188,7 @@ func (d *Driver) Restart() error {
 
 // Start a host
 func (d *Driver) Start() error {
-	h, err := hyperkit.New("", "", filepath.Join(d.StorePath, "machines", d.MachineName))
+	h, err := hyperkit.New("", "", d.ResolveStorePath(d.MachineName))
 	if err != nil {
 		return err
 	}
@@ -180,7 +197,7 @@ func (d *Driver) Start() error {
 	h.Kernel = d.ResolveStorePath(d.Vmlinuz)
 	h.Initrd =d.ResolveStorePath(d.Initrd)
 	h.VMNet = true
-	h.ISOImages = []string{d.ResolveStorePath(isoFilename)}
+//	h.ISOImages = []string{d.ResolveStorePath(isoFilename)}
 	h.Console = hyperkit.ConsoleFile
 	h.CPUs = d.CPU
 	h.Memory = d.Memory
@@ -197,9 +214,10 @@ func (d *Driver) Start() error {
 	log.Infof("Generated MAC %s", mac)
 	h.Disks = []hyperkit.DiskConfig{
 		{
-			Path:   pkgdrivers.GetDiskPath(d.BaseDriver),
-			Size:   d.DiskSize,
+			Path:   fmt.Sprintf("file://%s", d.DiskPath),
+			//Size:   d.DiskSize,
 			Driver: "virtio-blk",
+			Format: "qcow",
 		},
 	}
 	log.Infof("Starting with cmdline: %s", d.Cmdline)
@@ -220,32 +238,16 @@ func (d *Driver) Start() error {
 		return fmt.Errorf("IP address never found in dhcp leases file %v", err)
 	}
 
-	if len(d.NFSShares) > 0 {
-		log.Info("Setting up NFS mounts")
-
-		// takes some time here for ssh / nfsd to work properly
-		err = d.waitForIP()
-		if err != nil {
-			log.Errorf("Failed to get IP address for VM: %s", err.Error())
-			return err
-		}
-
-		err = d.setupNFSShare()
-		if err != nil {
-			log.Errorf("NFS setup failed: %s", err.Error())
-			return err
-		}
-	}
-
 	return nil
 }
 
 // Stop a host gracefully
 func (d *Driver) Stop() error {
-	d.cleanupNfsExports()
+	//d.cleanupNfsExports()
 	return d.sendSignal(syscall.SIGTERM)
 }
 
+/*
 func (d *Driver) extractKernel(isoPath string) error {
 	log.Debugf("Mounting %s", isoFilename)
 
@@ -347,6 +349,7 @@ func (d *Driver) setupNFSShare() error {
 func (d *Driver) nfsExportIdentifier(path string) string {
 	return fmt.Sprintf("minikube-hyperkit %s-%s", d.MachineName, path)
 }
+*/
 
 func (d *Driver) sendSignal(s os.Signal) error {
 	pid := d.getPid()
@@ -376,6 +379,7 @@ func (d *Driver) getPid() int {
 	return config.Pid
 }
 
+/*
 func (d *Driver) cleanupNfsExports() {
 	if len(d.NFSShares) > 0 {
 		log.Infof("You must be root to remove NFS shared folders. Please type root password.")
@@ -415,6 +419,7 @@ func (d *Driver) extractKernelOptions() error {
 	log.Debugf("Extracted Options %q", d.Cmdline)
 	return nil
 }
+*/
 
 func (d *Driver) waitForIP() error {
 	var ip string
