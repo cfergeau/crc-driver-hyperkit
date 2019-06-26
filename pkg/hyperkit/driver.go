@@ -154,9 +154,15 @@ func (d *Driver) GetState() (state.State, error) {
 	}
 
 	// Sending a signal of 0 can be used to check the existence of a process.
+
+// Not possible to do this with the hyperkit process as it's running SUID so
+// that vmnet can work
+/*
 	if err := p.Signal(syscall.Signal(0)); err != nil {
 		return state.Stopped, nil
 	}
+*/
+
 	if p == nil {
 		return state.Stopped, nil
 	}
