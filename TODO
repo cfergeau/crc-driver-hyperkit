@@ -1,0 +1,18 @@
+- this code probably needs to go in ~/go/src/github.com/code-ready/crc-driver-hyperkit
+- I used the same hyperkit binary as the one from crc_hyperkit.sh, the one from
+  brew was not working
+- I used the libvirt 4.1.0 image + manually extracted kernel/vmlinuz
+- it needs changes in crc too: https://github.com/cfergeau/crc/tree/hyperkit
+
+
+things which are not done yet:
+
+- get rid of the hardcoded values in this commit
+- detecting hyperkit startup failures is non-existent (eg if crc.pid exists,
+  hyperkit fails to start but crc thinks everything is fine - even the code to
+  detect if hyperkit is running is flakey ??
+- crc stop is not working (mostly untested)
+- crc needs to download hyperkit + crc-machine-driver
+- VM IP was not added to resolv.conf, but this might be my crc code which is
+  outdated (it definitely is not latest master)
+- the vendor'ed hyperkit code seems old, maybe update this

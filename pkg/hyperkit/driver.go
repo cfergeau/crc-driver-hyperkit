@@ -195,6 +195,9 @@ func (d *Driver) Restart() error {
 
 // Start a host
 func (d *Driver) Start() error {
+	// TODO: Read this from the bundle file - belongs in crc
+	d.HyperkitPath = "/Users/teuf/bin/hyperkit"
+
 	h, err := hyperkit.New(d.HyperkitPath, "", d.ResolveStorePath(d.MachineName))
 	if err != nil {
 		return err
@@ -203,6 +206,14 @@ func (d *Driver) Start() error {
 	// TODO: handle the rest of our settings.
 	h.Kernel = d.ResolveStorePath(d.Vmlinuz)
 	h.Initrd =d.ResolveStorePath(d.Initrd)
+
+	// TODO: Read this from the bundle file - belongs in crc
+	d.UUID="63655f17-7992-4f8e-8274-4aad9f7cf742"
+	h.Kernel = d.ResolveStorePath("vmlinuz-4.18.0-80.1.2.el8_0.x86_64")
+	h.Initrd =d.ResolveStorePath("initramfs-4.18.0-80.1.2.el8.x86_64.img")
+	d.Cmdline = "BOOT_IMAGE=/ostree/rhcos-bf3b38268ddb2a2070dc587b361ce45c46a6f9e3606bbd3b5e15b2e6d3d47e5d/vmlinuz-4.18.0-80.1.2.el8_0.x86_64 console=tty0 console=ttyS0,115200n8 rootflags=defaults,prjquota rw root=UUID=a8fbdcb1-63ea-421e-8f6f-dac9cbbcc822 ostree=/ostree/boot.0/rhcos/bf3b38268ddb2a2070dc587b361ce45c46a6f9e3606bbd3b5e15b2e6d3d47e5d/0 coreos.oem.id=qemu ignition.platform.id=qemu"
+	h.StateDir="/Users/teuf/.hyperkit/crc"
+
 	h.VMNet = true
 //	h.ISOImages = []string{d.ResolveStorePath(isoFilename)}
 	h.Console = hyperkit.ConsoleFile
