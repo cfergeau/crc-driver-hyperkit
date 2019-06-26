@@ -61,6 +61,7 @@ type Driver struct {
 	NFSShares      []string
 	NFSSharesRoot  string
 */
+	HyperkitPath   string
 	UUID           string
 	BootKernel string
 	BootInitrd string
@@ -194,7 +195,7 @@ func (d *Driver) Restart() error {
 
 // Start a host
 func (d *Driver) Start() error {
-	h, err := hyperkit.New("", "", d.ResolveStorePath(d.MachineName))
+	h, err := hyperkit.New(d.HyperkitPath, "", d.ResolveStorePath(d.MachineName))
 	if err != nil {
 		return err
 	}
