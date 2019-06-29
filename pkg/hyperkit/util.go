@@ -17,11 +17,13 @@ limitations under the License.
 package hyperkit
 
 import (
-	"time"
 	"errors"
+	"github.com/code-ready/machine/libmachine/log"
 	"strings"
+	"time"
 )
 
+// RetriableError is an error that can be tried again
 type RetriableError struct {
 	Err error
 }
@@ -30,16 +32,19 @@ func (r RetriableError) Error() string {
 	return "Temporary Error: " + r.Err.Error()
 }
 
+// MultiError holds multiple errors
 type MultiError struct {
 	Errors []error
 }
 
+// Collect adds the error
 func (m *MultiError) Collect(err error) {
 	if err != nil {
 		m.Errors = append(m.Errors, err)
 	}
 }
 
+// ToError converts all errors into one
 func (m MultiError) ToError() error {
 	if len(m.Errors) == 0 {
 		return nil
@@ -52,52 +57,24 @@ func (m MultiError) ToError() error {
 	return errors.New(strings.Join(errStrings, "\n"))
 }
 
+// RetryAfter retries a number of attempts, after a delay
 func RetryAfter(attempts int, callback func() error, d time.Duration) (err error) {
 	m := MultiError{}
 	for i := 0; i < attempts; i++ {
+		if i > 0 {
+			log.Debugf("retry loop %d", i)
+		}
 		err = callback()
 		if err == nil {
 			return nil
 		}
 		m.Collect(err)
-		if _, ok := err.(*RetriableError); !ok {
+		if _, ok := err.(RetriableError); !ok {
+			log.Debugf("non-retriable error: %v", err)
 			return m.ToError()
 		}
+		log.Debugf("error: %v - sleeping %s", err, d)
 		time.Sleep(d)
 	}
 	return m.ToError()
 }
-
-/*
-func hdiutil(args ...string) error {
-	cmd := exec.Command("hdiutil", args...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	log.Debugf("executing: %v %v", cmd, strings.Join(args, " "))
-
-	err := cmd.Run()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func readLine(path string) (string, error) {
-	inFile, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer inFile.Close()
-
-	scanner := bufio.NewScanner(inFile)
-	for scanner.Scan() {
-		if kernelOptionRegexp.Match(scanner.Bytes()) {
-			m := kernelOptionRegexp.FindSubmatch(scanner.Bytes())
-			return string(m[1]), nil
-		}
-	}
-	return "", fmt.Errorf("couldn't find kernel option from %s image", path)
-}
-*/

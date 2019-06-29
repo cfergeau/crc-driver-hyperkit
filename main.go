@@ -16,10 +16,18 @@ limitations under the License.
 package main
 
 import (
+	"fmt"
+	"github.com/cfergeau/crc-driver-hyperkit/pkg/hyperkit"
 	"github.com/code-ready/machine/libmachine/drivers/plugin"
-	"github.com/code-ready/crc-driver-hyperkit/pkg/hyperkit"
+	"os"
 )
 
 func main() {
-	plugin.RegisterDriver(hyperkit.NewDriver("", ""))
+	if len(os.Args) > 1 {
+		if os.Args[1] == "version" {
+			fmt.Printf("Driver version: %s\n", hyperkit.DriverVersion)
+			os.Exit(0)
+		}
+	}
+	plugin.RegisterDriver(hyperkit.NewDriver("default", "path"))
 }
