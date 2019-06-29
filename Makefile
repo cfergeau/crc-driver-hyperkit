@@ -5,7 +5,7 @@ ORG := github.com/machine-drivers
 REPOPATH ?= $(ORG)/docker-machine-driver-hyperkit
 
 vendor:
-	dep ensure -v
+	go mod vendor
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
