@@ -31,12 +31,12 @@ import (
 
 	"github.com/code-ready/machine/libmachine/drivers"
 	"github.com/code-ready/machine/libmachine/log"
+	"github.com/code-ready/machine/libmachine/mcnflag"
 	"github.com/code-ready/machine/libmachine/mcnutils"
 	"github.com/code-ready/machine/libmachine/state"
 	ps "github.com/mitchellh/go-ps"
 	hyperkit "github.com/moby/hyperkit/go"
 	"github.com/pkg/errors"
-	pkgdrivers "github.com/code-ready/machine-driver-hyperkit/pkg/drivers"
 )
 
 const (
@@ -51,7 +51,6 @@ const (
 // Driver is the machine driver for Hyperkit
 type Driver struct {
 	*drivers.BaseDriver
-	*pkgdrivers.CommonDriver
 	DiskPathURL    string
 	CPU            int
 	Memory         int
@@ -71,7 +70,6 @@ func NewDriver(hostName, storePath string) *Driver {
 		BaseDriver: &drivers.BaseDriver{
 			SSHUser: DefaultSSHUser,
 		},
-		CommonDriver: &pkgdrivers.CommonDriver{},
 		CPU:    DefaultCPUs,
 		Memory: DefaultMemory,
 	}
@@ -118,12 +116,6 @@ func (d *Driver) DriverName() string {
 // GetSSHHostname returns hostname for use with ssh
 func (d *Driver) GetSSHHostname() (string, error) {
 	return d.IPAddress, nil
-}
-
-// GetURL returns a Docker compatible host URL for connecting to this host
-// e.g. tcp://1.2.3.4:2376
-func (d *Driver) GetURL() (string, error) {
-	return "", nil
 }
 
 // Return the state of the hyperkit pid
@@ -186,7 +178,11 @@ func (d *Driver) Remove() error {
 
 // Restart a host
 func (d *Driver) Restart() error {
-	return pkgdrivers.Restart(d)
+	if err := d.Stop(); err != nil {
+		return err
+	}
+
+	return d.Start()
 }
 
 // Start a host
@@ -266,6 +262,29 @@ func (d *Driver) Start() error {
 	log.Debugf("IP: %s", d.IPAddress)
 
 	return nil
+}
+
+// GetCreateFlags is not implemented yet
+func (d *Driver) GetCreateFlags() []mcnflag.Flag {
+	return nil
+}
+
+// SetConfigFromFlags is not implemented yet
+func (d *Driver) SetConfigFromFlags(flags drivers.DriverOptions) error {
+	return nil
+}
+
+// GetURL is not implemented yet
+func (d *Driver) GetURL() (string, error) {
+	return "", nil
+}
+
+func (d *Driver) DriverVersion() string {
+	return DriverVersion
+}
+
+func (d *Driver) GetSSHKeyPath() string {
+	return d.SSHKeyPath
 }
 
 //recoverFromUncleanShutdown searches for an existing hyperkit.pid file in
