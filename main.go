@@ -29,5 +29,5 @@ func main() {
 			os.Exit(0)
 		}
 	}
-	plugin.RegisterDriver(hyperkit.NewDriver("", ""))
+	plugin.RegisterDriver(hyperkit.NewDriver())
 }
