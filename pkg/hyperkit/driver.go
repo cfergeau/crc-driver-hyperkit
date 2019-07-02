@@ -260,7 +260,7 @@ func (d *Driver) Start() error {
 		return nil
 	}
 
-	if err := RetryAfter(30, getIP, 2*time.Second); err != nil {
+	if err := RetryAfter(60, getIP, 2*time.Second); err != nil {
 		return fmt.Errorf("IP address never found in dhcp leases file %v", err)
 	}
 	log.Debugf("IP: %s", d.IPAddress)
