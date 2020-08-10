@@ -90,8 +90,7 @@ func (d *Driver) Create() error {
 		return err
 	}
 
-	b2dutils := mcnutils.NewB2dUtils(d.StorePath, "")
-	if err := b2dutils.CopyDiskToMachineDir(d.DiskPathURL, d.MachineName); err != nil {
+	if err := mcnutils.CopyFile(DiskPathURL, d.ResolveStorePath(diskName)); err != nil {
 		return err
 	}
 
