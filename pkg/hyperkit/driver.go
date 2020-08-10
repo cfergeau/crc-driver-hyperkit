@@ -41,7 +41,6 @@ import (
 )
 
 const (
-	diskName        = "crc.disk"
 	pidFileName     = "hyperkit.pid"
 	machineFileName = "hyperkit.json"
 	permErr         = "%s needs to run with elevated permissions. " +
@@ -89,8 +88,17 @@ func (d *Driver) Create() error {
 	if err := d.verifyRootPermissions(); err != nil {
 		return err
 	}
+	log.Debugf("ImageFormat: %s", d.ImageFormat)
+	if d.ImageFormat == "" {
+		d.ImageFormat = "qcow2"
+	}
+	if d.ImageFormat != "qcow2" {
+		return fmt.Errorf("Unsupported VM image format: %s", d.ImageFormat)
+	}
 
-	if err := mcnutils.CopyFile(DiskPathURL, d.ResolveStorePath(diskName)); err != nil {
+	diskPath := d.ResolveStorePath(fmt.Sprintf("%s.%s", d.MachineName, d.ImageFormat))
+	log.Debugf("diskPath: %s", diskPath)
+	if err := mcnutils.CopyFile(DiskPathURL, diskPath); err != nil {
 		return err
 	}
 
@@ -214,9 +222,12 @@ func (d *Driver) Start() error {
 	// Need to strip 0's
 	mac = trimMacAddress(mac)
 	log.Debugf("Generated MAC %s", mac)
+
+	diskPath := d.ResolveStorePath(fmt.Sprintf("%s.%s", d.MachineName, d.ImageFormat))
+	log.Debugf("diskPath: %s ImageFormat: %s", diskPath, d.ImageFormat)
 	h.Disks = []hyperkit.DiskConfig{
 		{
-			Path:   fmt.Sprintf("file://%s", d.ResolveStorePath(diskName)),
+			Path:   diskPath,
 			Driver: "virtio-blk",
 			Format: "qcow",
 		},
@@ -284,8 +295,7 @@ func (d *Driver) GetSSHKeyPath() string {
 //an instance running already. If the PID in the pidfile does not belong to a running hyperkit
 //process, we can safely delete it, and there is a good chance the machine will recover when restarted.
 func (d *Driver) recoverFromUncleanShutdown() error {
-	stateDir := filepath.Join(d.StorePath, "machines", d.MachineName)
-	pidFile := filepath.Join(stateDir, pidFileName)
+	pidFile := d.ResolveStorePath(pidFileName)
 
 	if _, err := os.Stat(pidFile); err != nil {
 		if os.IsNotExist(err) {
