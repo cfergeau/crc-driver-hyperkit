@@ -9,3 +9,5 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/zchee/go-vmnet v0.0.0-20161021174912-97ebf9174097
 )
+
+replace github.com/code-ready/machine => ../machine
