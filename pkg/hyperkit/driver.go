@@ -98,7 +98,7 @@ func (d *Driver) Create() error {
 
 	diskPath := d.ResolveStorePath(fmt.Sprintf("%s.%s", d.MachineName, d.ImageFormat))
 	log.Debugf("diskPath: %s", diskPath)
-	if err := mcnutils.CopyFile(DiskPathURL, diskPath); err != nil {
+	if err := mcnutils.CopyFile(d.DiskPathURL, diskPath); err != nil {
 		return err
 	}
 
