@@ -224,11 +224,10 @@ func (d *Driver) Start() error {
 	if d.ImageFormat != "qcow2" {
 		return fmt.Errorf("Unsupported VM image format: %s", d.ImageFormat)
 	}
-	h.Disks = []hyperkit.DiskConfig{
-		{
-			Path:   fmt.Sprintf("file://%s", d.getDiskPath()),
-			Driver: "virtio-blk",
-			Format: "qcow",
+	h.Disks = []hyperkit.Disk{
+		&hyperkit.QcowDisk{
+			Path: d.getDiskPath(),
+			Trim: true,
 		},
 	}
 	log.Debugf("Starting with cmdline: %s", d.Cmdline)
