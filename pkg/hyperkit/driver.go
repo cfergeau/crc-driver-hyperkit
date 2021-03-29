@@ -384,6 +384,11 @@ func (d *Driver) sendSignal(s os.Signal) error {
 	return proc.Signal(s)
 }
 
+type HyperKit struct {
+	// Pid of the hyperkit process
+	Pid int `json:"pid"`
+}
+
 func (d *Driver) getPid() int {
 	pidPath := d.ResolveStorePath(machineFileName)
 
@@ -393,7 +398,7 @@ func (d *Driver) getPid() int {
 		return 0
 	}
 	dec := json.NewDecoder(f)
-	config := hyperkit.HyperKit{}
+	config := HyperKit{}
 	if err := dec.Decode(&config); err != nil {
 		log.Warnf("Error decoding pid file: %v", err)
 		return 0
