@@ -248,7 +248,7 @@ func (d *Driver) Start() error {
 		},
 	}
 	log.Debugf("Starting with cmdline: %s", d.Cmdline)
-	if err := h.Start(d.Cmdline); err != nil {
+	if _, err := h.Start(d.Cmdline); err != nil {
 		log.Debugf("Error trying to execute %s", h.CmdLine)
 		return errors.Wrapf(err, "starting with cmd line: %s", d.Cmdline)
 	}
