@@ -184,9 +184,8 @@ func (d *Driver) Start() error {
 	}
 	log.Debugf("Using hyperkit binary from %s", h.HyperKit)
 	// TODO: handle the rest of our settings.
-	//h.Kernel = d.VmlinuzPath
-	//h.Initrd = d.InitrdPath
-	h.Bootrom = d.ResolveStorePath("UEFI.fd")
+	h.Kernel = d.VmlinuzPath
+	h.Initrd = d.InitrdPath
 	h.VMNet = d.VMNet
 	h.Console = hyperkit.ConsoleFile
 	h.CPUs = d.CPU
