@@ -188,6 +188,8 @@ func (d *Driver) Start() error {
 	h.Initrd = d.InitrdPath
 	h.VMNet = d.VMNet
 	h.Console = hyperkit.ConsoleFile
+	// Workaround weird hyperkit hang
+	h.SetLogger(nil)
 	h.CPUs = d.CPU
 	h.Memory = d.Memory
 	h.UUID = d.UUID
